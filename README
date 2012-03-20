@@ -1,13 +1,14 @@
 # krailoj
 
-FIXME: write description
+A simple IRC bot that responds to pattern matched opinions from a csv file
 
 ## Usage
 
-FIXME: write
+lein uberjar (optional?)
+lein run
 
 ## License
 
-Copyright (C) 2012 FIXME
+Copyright (C) 2012 Matt Havener
 
 Distributed under the Eclipse Public License, the same as Clojure.
