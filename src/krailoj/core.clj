@@ -9,21 +9,11 @@
   []
    (int (/ (System/currentTimeMillis) 1000)))
 
-(defn
-  seconds-after-now
-  [expiration]
-    (+ (seconds-now) expiration))
-
-(defn
-  has-expired?
-  [ticks]
-  (> (seconds-now) ticks))
-
 (def csv-url "https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=0AoVJwKRm4drQdDdBY2hQWVBiSGtrMWsycGZzM0hKM3c&single=true&gid=0&output=csv")
 
 (defn 
   get-new-opinions 
-  "Modify opinions by downloading and parsing a new opinions file"
+  "Download and parse a new opinions file. This can block."
   [] 
   (let [f ((http-client/get csv-url) :body) ; get the csv
         cf (csv/read-csv f)] ; transform to vector of vectors
@@ -59,11 +49,13 @@
   [opinions last-fired user chan said]
   (let [matches (match-responses-for-line opinions said)
         ; debounc responses, default to seconds of 0 if last-fired is empty
-        responses (filter #(has-expired? (get last-fired (% :line) 0)) matches)]
+        responses (filter #(> (seconds-now) (get last-fired (% :line) 0)) matches)]
     { 
      :last-fired (zipmap (map #(% :line) responses) (repeat (+ 3600 (seconds-now))))
      :messages (map #(str user ": " (% :response)) responses) 
     }))
+
+; global state
 
 ; map of lines to last-sent time
 (def last-fired (ref {}))
@@ -71,7 +63,15 @@
 ; ref to opinions vector of opinion maps { :match :response }
 (def opinions (ref []))
 
-(defn set-new-opinions [] (dosync (ref-set opinions (get-new-opinions)) :ok))
+; functions with side effects (on global state)
+
+(defn 
+  set-new-opinions 
+  [] 
+  (dosync 
+    (ref-set opinions (get-new-opinions)) ; get the new opinions
+    (alter last-fired select-keys (map #(% :line) @opinions)) ; remove anything from last-fired thats been removed from opinions
+    :ok))
 
 (defn 
   handle-line 
@@ -81,12 +81,12 @@
         chan (first (msg :params))
         said (apply str (rest (msg :params)))]
     (if (.contains said "I CALL UPON THE POWER OF THE SREADSHEET")
-      (do 
+      (do ; reload spreadsheet 
         (irclj/message irc chan "loading hacking tools...")
         (future (fn [] (do
                          (set-new-opinions)
                          (irclj/message irc chan (str "loaded " (count @opinions) " hacks"))))))
-      (do 
+      (do ; send response (if any)
         (let
           [responses (responses-for-privmsg @opinions @last-fired user chan said)]
           (do 
