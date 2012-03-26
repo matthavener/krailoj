@@ -1,3 +1,3 @@
 [submodule "checkouts/irclj"]
 	path = checkouts/irclj
-	url = git://github.com:matthavener/irclj.git
+	url = git://github.com/matthavener/irclj.git
