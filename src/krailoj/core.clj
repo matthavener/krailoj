@@ -85,10 +85,10 @@
       (do ; reload spreadsheet 
         (println "reloading...")
         (irclj/message irc chan "loading hacking tools...")
-        (future (fn [] (do
-                         (set-new-opinions)
-                         (println "got " (count @opinions) " opinions")
-                         (irclj/message irc chan (str "loaded " (count @opinions) " hacks"))))))
+        (future (do
+                  (set-new-opinions)
+                  (println "got " (count @opinions) " opinions")
+                  (irclj/message irc chan (str "loaded " (count @opinions) " hacks")))))
       (do ; send response (if any)
         (let
           [responses (responses-for-privmsg @opinions @last-fired user chan said)]
