@@ -80,11 +80,14 @@
   (let [user (msg :nick)
         chan (first (msg :params))
         said (apply str (rest (msg :params)))]
-    (if (.contains said "I CALL UPON THE POWER OF THE SREADSHEET")
+    (println "wut" said (.contains said "I CALL UPON THE POWER OF THE SPREADSHEET"))
+    (if (.contains said "I CALL UPON THE POWER OF THE SPREADSHEET")
       (do ; reload spreadsheet 
+        (println "reloading...")
         (irclj/message irc chan "loading hacking tools...")
         (future (fn [] (do
                          (set-new-opinions)
+                         (println "got " (count @opinions) " opinions")
                          (irclj/message irc chan (str "loaded " (count @opinions) " hacks"))))))
       (do ; send response (if any)
         (let
@@ -96,7 +99,8 @@
               (alter last-fired merge (responses :last-fired)))
             ; send each response out to irc
             (doseq [res (responses :messages)] 
-              (irclj/message irc chan res))))))))
+              (irclj/message irc chan res)))))
+      )))
 
 (def handle-line-ref (ref handle-line))
 
