@@ -108,7 +108,7 @@
   make-irc-connection 
   "Create the irclj connection/irc var"
   []
-  (irclj/connect "irc.madhax.net" 6667 "krailjOS" :real-name "krailjOS" :mode 0 :callbacks {:privmsg (fn [& v] (apply @handle-line-ref v))}))
+  (irclj/connect "irc.madhax.net" 6667 "krailOS" :real-name "krailOS-clojure" :mode 0 :callbacks {:privmsg (fn [& v] (apply @handle-line-ref v))}))
 
 (defn 
   -main 
