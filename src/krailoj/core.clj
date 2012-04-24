@@ -21,7 +21,7 @@
                   ; the (?i) appears make it case insensitive
                   :line l
                   :match (re-pattern (str "(?i)" "(\\(|\\s|^)(" (first l) ")(\\s|\\)|\\.|\\?|\\!|$)")) 
-                  :response (str "? " (string/join ". " (rest l)))
+                  :response (str "? " (string/join " " (rest l)))
                   }) 
          cf)))
 
@@ -35,7 +35,7 @@
         (conj responses {
                          ; include the matching string from the regex in the
                          ; response
-                         :response (str (first grp) (opinion :response))
+                         :response (str (nth grp 2) (opinion :response))
                          :line (opinion :line)
                          })
         responses)) 
@@ -80,7 +80,6 @@
   (let [user (msg :nick)
         chan (first (msg :params))
         said (apply str (rest (msg :params)))]
-    (println "wut" said (.contains said "I CALL UPON THE POWER OF THE SPREADSHEET"))
     (if (.contains said "I CALL UPON THE POWER OF THE SPREADSHEET")
       (do ; reload spreadsheet 
         (println "reloading...")
@@ -89,17 +88,15 @@
                   (set-new-opinions)
                   (println "got " (count @opinions) " opinions")
                   (irclj/message irc chan (str "loaded " (count @opinions) " hacks")))))
-      (do ; send response (if any)
-        (let
-          [responses (responses-for-privmsg @opinions @last-fired user chan said)]
-          (do 
-            (println "handling " chan said " responds with " (first responses))
-            ; update the last-fired time for all the responses
-            (dosync
-              (alter last-fired merge (responses :last-fired)))
-            ; send each response out to irc
-            (doseq [res (responses :messages)] 
-              (irclj/message irc chan res)))))
+      (let
+       [responses (responses-for-privmsg @opinions @last-fired user chan said)]
+       ; update the last-fired time for all the responses
+       (when-not (empty? responses)
+           (dosync
+            (alter last-fired merge (responses :last-fired)))
+           ; send each response out to irc
+           (doseq [res (responses :messages)] 
+                  (irclj/message irc chan res))))
       )))
 
 (def handle-line-ref (ref handle-line))
