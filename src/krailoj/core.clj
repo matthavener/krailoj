@@ -43,6 +43,8 @@
     opinions
     ))
 
+(def cooldown-secs 86400)
+
 (defn
   responses-for-privmsg
   "Returns a list of irc messages to send for a private message in a channel"
@@ -51,7 +53,7 @@
         ; debounc responses, default to seconds of 0 if last-fired is empty
         responses (filter #(> (seconds-now) (get last-fired (% :line) 0)) matches)]
     { 
-     :last-fired (zipmap (map #(% :line) responses) (repeat (+ 3600 (seconds-now))))
+     :last-fired (zipmap (map #(% :line) responses) (repeat (+ cooldown-secs (seconds-now))))
      :messages (map #(str user ": " (% :response)) responses) 
     }))
 
