@@ -115,7 +115,8 @@
   [& args]
   (do 
     (set-new-opinions)
-    (def irc (ref (make-irc-connection)))))
+    (def irc (ref (make-irc-connection)))
+    (irclj/join @irc "#main")))
 
 ; just for debugging.. better way?
 (defn reload [] (dosync (ref-set handle-line-ref handle-line)))
