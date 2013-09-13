@@ -16,7 +16,8 @@
   "Download and parse a new opinions file. This can block."
   [] 
   (let [f ((http-client/get csv-url) :body) ; get the csv
-        cf (csv/read-csv f)] ; transform to vector of vectors
+        hcf (csv/read-csv f)
+        cf (rest hcf)] ; transform to vector of vectors
     (map (fn [l] { ; build the regex and response strings, using the entire line as a "key"
                   ; the (?i) appears make it case insensitive
                   :line l
