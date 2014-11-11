@@ -1,6 +1,6 @@
 (ns krailoj.core
   (:require [clj-http.client :as http-client]
-            [clojure.data.csv :as csv]
+            [clojure.data.csv :as csv] ;; todo remove
             [irclj.core :as irclj]
             [clojure.string :as string]))
 
@@ -9,6 +9,7 @@
   []
    (int (/ (System/currentTimeMillis) 1000)))
 
+;; todo rename this tsv-url
 (def csv-url "https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=0AoVJwKRm4drQdDdBY2hQWVBiSGtrMWsycGZzM0hKM3c&single=true&gid=0&output=txt")
 
 (defn 
