@@ -9,14 +9,14 @@
   []
    (int (/ (System/currentTimeMillis) 1000)))
 
-(def csv-url "https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=0AoVJwKRm4drQdDdBY2hQWVBiSGtrMWsycGZzM0hKM3c&single=true&gid=0&output=csv")
+(def csv-url "https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=0AoVJwKRm4drQdDdBY2hQWVBiSGtrMWsycGZzM0hKM3c&single=true&gid=0&output=txt")
 
 (defn 
   get-new-opinions 
   "Download and parse a new opinions file. This can block."
   [] 
   (let [f ((http-client/get csv-url) :body) ; get the csv
-        hcf (csv/read-csv f)
+        hcf (map #(string/split % #"\t") (string/split f #"\n"))
         cf (rest hcf)] ; transform to vector of vectors
     (map (fn [l] { ; build the regex and response strings, using the entire line as a "key"
                   ; the (?i) appears make it case insensitive
